@@ -3,6 +3,37 @@
 All notable changes to **Unit Purchase Calculator** are documented here.
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-05-05
+
+### Changed
+- **Visual redesign in the editorial / portfolio mode of yukaidu.com:**
+  white ground, black ink, hairline borders, generous whitespace,
+  oversized italic accent on the title, single-color accent strategy.
+  All gradients, drop shadows, paper texture, hover-lift micro-
+  interactions, glow effects, and accent-tinted radial halos from
+  the v0.2.0 modernization are removed in favor of restraint —
+  letting type and data carry the visual weight.
+- Top edge now carries a thin **5-block color stripe** (red ·
+  gold · forest · navy · cream) as a nod to Yukai Du's "vibrant
+  layered patterns" — the only loud color outside of accent text.
+- Header title is now ~2.6rem display (4.5rem in full screen) with
+  *Calculator* set in italic vermillion against black "Unit
+  Purchase".
+- Result tiles use hairline grid lines (no inner gap), removing
+  the boxed "card" feel; the **Free margin** tile is now solid
+  cream from the stripe palette so it stands as the headline
+  output.
+- Status bar reduced to a single thick left border in the relevant
+  state color; checklist becomes a flat bordered list.
+- Inputs, quote box, formula box: 1px hairline borders only,
+  flat fills, focus rings replaced with simple border-color
+  changes.
+- Free-margin gauge thinned to a 4px solid bar (no gradient, no
+  inner highlight).
+- Live-dot pulse simplified to opacity-only.
+- Fullscreen layout retuned to a 1180px max-width grid with
+  3.5rem gutters and a 4.5rem display title.
+
 ## [0.2.0] — 2026-05-05
 
 ### Added
@@ -55,5 +86,6 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Cream / forest-green / vermillion palette pulled from the
   reference image, with Syne (display) and DM Mono (body) fonts.
 
+[0.3.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.3.0
 [0.2.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.2.0
 [0.1.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.1.0

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Unit Purchase Calculator",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Risk-sized position sizing for any market. Live prices, custom broker margin, and free margin display.",
   "permissions": ["storage"],
   "host_permissions": [
