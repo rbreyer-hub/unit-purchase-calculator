@@ -3,6 +3,27 @@
 All notable changes to **Unit Purchase Calculator** are documented here.
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-05-05
+
+### Fixed
+- **Dark mode borders no longer disappear.** Hairline alpha bumped
+  from 0.18 / 0.10 / 0.06 to 0.32 / 0.18 / 0.10. Inputs, selects,
+  the quote box, result tiles, status bar, formula box, and
+  checklist rows now sit on a slightly lifted `#161410` surface
+  in dark mode so their 1px borders register as distinct objects
+  instead of melting into pure black.
+- **All muted text is now legible in dark mode.** The `--ink-3`
+  and `--ink-faint` tokens (used by section labels, the subtitle,
+  field/result labels, footer, quote-meta, separators, etc.)
+  brightened to `#B5B0A2` and `#8E8979` for ~9:1 / ~6:1 contrast
+  on the black ground. `--ink` and `--ink-2` lifted slightly too
+  so titles read as crisp cream rather than off-white.
+
+### Changed
+- Focus state in dark mode now adds a 2px accent halo
+  (`--accent-soft`) plus a slightly brighter input fill so the
+  focused field is unambiguous.
+
 ## [0.4.0] — 2026-05-05
 
 ### Added
@@ -113,6 +134,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Cream / forest-green / vermillion palette pulled from the
   reference image, with Syne (display) and DM Mono (body) fonts.
 
+[0.4.1]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.4.0
 [0.3.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.3.0
 [0.2.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.2.0

@@ -688,24 +688,65 @@ body.fullscreen .color-stripe { height: 8px; }
   --bg-tile:   #0A0A0A;
   --bg-warm:   #1A1814;
 
-  --ink:        #F5F2EA;
-  --ink-2:      #C8C4B8;
-  --ink-3:      #8E8B82;
-  --ink-faint:  #5A5750;
+  --ink:        #FBF8EE;
+  --ink-2:      #DAD5C5;
+  --ink-3:      #B5B0A2;
+  --ink-faint:  #8E8979;
 
-  --hair:       rgba(245, 242, 234, 0.18);
-  --hair-soft:  rgba(245, 242, 234, 0.10);
-  --hair-faint: rgba(245, 242, 234, 0.06);
+  --hair:       rgba(245, 242, 234, 0.32);
+  --hair-soft:  rgba(245, 242, 234, 0.18);
+  --hair-faint: rgba(245, 242, 234, 0.10);
 
   --accent:       #E85A3F;
   --accent-deep:  #FF7559;
-  --accent-soft:  rgba(232, 90, 63, 0.12);
-  --accent-line:  rgba(232, 90, 63, 0.28);
+  --accent-soft:  rgba(232, 90, 63, 0.18);
+  --accent-line:  rgba(232, 90, 63, 0.36);
 
   --grad-gauge-safe:   #6B9986;
   --grad-gauge-warn:   #E8B33C;
   --grad-gauge-danger: #E85A3F;
 }
+
+/* Lift form/data surfaces above the body so 1px hairlines actually
+   register against a slightly raised fill instead of pure black. */
+[data-theme="dark"] .input-wrap,
+[data-theme="dark"] select,
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] .quote-box,
+[data-theme="dark"] .result-card,
+[data-theme="dark"] .formula-box,
+[data-theme="dark"] .status-bar {
+  background: #161410;
+  border-color: var(--hair);
+}
+[data-theme="dark"] .results-grid { border-color: var(--hair); }
+[data-theme="dark"] .result-card { border-color: var(--hair); }
+[data-theme="dark"] .result-card:hover { background: #1F1C16; }
+[data-theme="dark"] .input-wrap:focus-within,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] input[type="text"]:focus,
+[data-theme="dark"] input[type="number"]:focus {
+  border-color: var(--accent);
+  background: #1A1813;
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* Header / footer / section rules need a stronger mark too */
+[data-theme="dark"] header { border-bottom-color: var(--hair); }
+[data-theme="dark"] footer { border-top-color: var(--hair); }
+[data-theme="dark"] .divider { background: var(--hair); }
+[data-theme="dark"] .section-label::before { background: var(--ink-2); }
+
+/* Checklist rows on dark — bump separator and hover */
+[data-theme="dark"] .checklist {
+  border-top-color: var(--hair);
+  border-bottom-color: var(--hair);
+}
+[data-theme="dark"] .check-item { border-bottom-color: var(--hair-soft); }
+[data-theme="dark"] .check-item:hover { background: #161410; }
+
+/* Quote box inner separator */
+[data-theme="dark"] .quote-meta { border-top-color: var(--hair-soft); }
 
 /* Free margin tile: cream is too bright on black — use a deep
    warm slab and lift the value text to cream. */
