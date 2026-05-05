@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Purchase Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <span class="tag"><span class="live-dot" id="live-dot"></span><span id="live-status">Live data</span></span>
+    <h1>Unit Purchase<br><span>Calculator</span></h1>
+    <p class="subtitle">Sized positions · live prices · free margin</p>
+  </header>
+
+  <div class="section-label">Market</div>
+
+  <div class="market">
+    <div class="row">
+      <select id="symbol-select" class="grow"></select>
+      <button id="refresh-btn" class="btn-icon" title="Refresh price">↻</button>
+    </div>
+    <div class="row" id="custom-row" style="display:none">
+      <input type="text" id="custom-symbol" placeholder="Yahoo symbol (e.g. TSLA)" class="grow" />
+      <button id="custom-apply" class="btn-icon" title="Use this symbol">→</button>
+    </div>
+    <div class="quote-box">
+      <div class="quote-main">
+        <span class="quote-label" id="quote-label">—</span>
+        <span class="quote-price" id="quote-price">—</span>
+      </div>
+      <div class="quote-meta">
+        <span id="quote-change">—</span>
+        <span class="dot-sep">·</span>
+        <span id="quote-time">never updated</span>
+        <button id="use-as-entry" class="btn-link">use as entry →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Inputs</div>
+
+  <div class="inputs">
+    <div class="field">
+      <label class="field-label" for="in-balance">Account balance</label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="in-balance" step="any" min="0" value="95000" />
+      </div>
+    </div>
+
+    <div class="field two-col">
+      <div>
+        <label class="field-label" for="in-risk">Risk amount</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" id="in-risk" step="any" min="0" value="950" />
+        </div>
+        <span class="field-aux" id="risk-pct">= 1.00% of balance</span>
+      </div>
+      <div>
+        <label class="field-label" for="in-multiplier">Contract multiplier</label>
+        <div class="input-wrap">
+          <input type="number" id="in-multiplier" step="any" min="0" value="1" />
+          <span class="suffix">×</span>
+        </div>
+        <span class="field-aux">$ per unit per point</span>
+      </div>
+    </div>
+
+    <div class="field two-col">
+      <div>
+        <label class="field-label" for="in-entry">Entry price</label>
+        <div class="input-wrap">
+          <input type="number" id="in-entry" step="any" min="0" value="25580" />
+        </div>
+      </div>
+      <div>
+        <label class="field-label" for="in-stop">Stop loss price</label>
+        <div class="input-wrap">
+          <input type="number" id="in-stop" step="any" min="0" value="25480" />
+        </div>
+        <span class="field-aux" id="stop-distance">distance: 100.00</span>
+      </div>
+    </div>
+
+    <div class="field two-col">
+      <div>
+        <label class="field-label" for="in-broker-margin">Broker margin %</label>
+        <div class="input-wrap">
+          <input type="number" id="in-broker-margin" step="any" min="0" max="100" value="5" />
+          <span class="suffix">%</span>
+        </div>
+        <span class="field-aux" id="broker-leverage">≈ 20:1 leverage</span>
+      </div>
+      <div>
+        <label class="field-label" for="in-used-margin">Used margin</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" id="in-used-margin" step="any" min="0" value="0" />
+        </div>
+        <span class="field-aux">already locked</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Results</div>
+
+  <div class="results-grid">
+    <div class="result-card">
+      <span class="result-label">Units</span>
+      <span class="result-value units" id="d-units">9.50</span>
+      <span class="result-sub">to enter</span>
+    </div>
+    <div class="result-card">
+      <span class="result-label">Max loss</span>
+      <span class="result-value loss" id="d-loss">$950</span>
+      <span class="result-sub" id="d-loss-pct">1.00% of account</span>
+    </div>
+    <div class="result-card">
+      <span class="result-label">Notional</span>
+      <span class="result-value notional" id="d-notional">$243.0K</span>
+      <span class="result-sub">measuring stick</span>
+    </div>
+    <div class="result-card">
+      <span class="result-label">Position margin</span>
+      <span class="result-value margin" id="d-pos-margin">$12.1K</span>
+      <span class="result-sub" id="d-pos-margin-pct">5.0% of notional</span>
+    </div>
+    <div class="result-card free">
+      <span class="result-label">Free margin</span>
+      <span class="result-value free" id="d-free-margin">$82.9K</span>
+      <span class="result-sub" id="d-free-margin-pct">87.2% of balance</span>
+    </div>
+    <div class="result-card">
+      <span class="result-label">Risk used</span>
+      <span class="result-value risk" id="d-risk-pct">1.00%</span>
+      <span class="result-sub">of balance</span>
+    </div>
+  </div>
+
+  <div class="status-bar safe" id="status-bar">
+    <div class="status-dot"></div>
+    <span class="status-text" id="status-text">Safe to enter — all checks passed</span>
+  </div>
+
+  <div class="margin-gauge">
+    <div class="gauge-header">
+      <span class="gauge-label">Free margin remaining</span>
+      <span class="gauge-pct" id="gauge-pct">87%</span>
+    </div>
+    <div class="gauge-track">
+      <div class="gauge-fill" id="gauge-fill" style="width:87%"></div>
+    </div>
+  </div>
+
+  <div class="section-label">Pre-trade checklist</div>
+  <div class="checklist" id="checklist"></div>
+
+  <div class="divider"></div>
+  <div class="section-label">Calculation breakdown</div>
+  <div class="formula-box" id="formula-box"></div>
+
+  <footer>
+    <span id="footer-version">v0.1.0</span>
+    <span class="dot-sep">·</span>
+    <span>Unit Purchase Calculator</span>
+    <span class="dot-sep">·</span>
+    <span>Quotes via Yahoo Finance</span>
+  </footer>
+
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
