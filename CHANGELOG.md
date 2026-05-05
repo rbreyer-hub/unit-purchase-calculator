@@ -3,6 +3,33 @@
 All notable changes to **Unit Purchase Calculator** are documented here.
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-05-05
+
+### Added
+- **Dark mode** with a header toggle button. `data-theme="dark"` on
+  `<html>` re-maps every palette token so the calculator inverts to
+  black ground / cream ink while keeping the same layout, the color-
+  block stripe, and the vermillion accent (slightly brightened to
+  `#E85A3F` for legibility). State is persisted to
+  `chrome.storage.local`; first run defaults to the user's
+  `prefers-color-scheme`. Free-margin tile shifts to a deep warm
+  slab with cream value text so it still reads as the headline
+  output. Smooth color cross-fade on toggle.
+- Theme button shows a moon icon in light mode (target = dark) and
+  a sun in dark mode (target = light).
+
+### Changed
+- **Display font swapped from Syne to Inter.** Inter is a neutral
+  modern grotesque used widely in financial / professional
+  interfaces. The title's "Calculator" italic flourish is dropped
+  in favor of a flat color contrast — fewer quirks, more presence.
+- All numeric displays (quote price, result tiles, gauge percent,
+  number inputs) now use `font-variant-numeric: tabular-nums
+  lining-nums` so digits keep a fixed-width column and don't shift
+  as values update.
+- Header buttons restructured into a `.header-actions` flex group
+  in the top-right; both share a unified `.btn-pill` style.
+
 ## [0.3.0] — 2026-05-05
 
 ### Changed
@@ -86,6 +113,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Cream / forest-green / vermillion palette pulled from the
   reference image, with Syne (display) and DM Mono (body) fonts.
 
+[0.4.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.4.0
 [0.3.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.3.0
 [0.2.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.2.0
 [0.1.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.1.0

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Unit Purchase Calculator</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -18,12 +18,23 @@
 <div class="container">
 
   <header>
-    <button id="expand-btn" class="btn-expand" title="Open in full screen">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M2 5V2h3M9 2h3v3M2 9v3h3M12 9v3h-3"/>
-      </svg>
-      <span class="btn-expand-label">Expand</span>
-    </button>
+    <div class="header-actions">
+      <button id="theme-btn" class="btn-pill" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <svg id="theme-icon-moon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12.5 8.4A5.2 5.2 0 1 1 5.6 1.5 4.2 4.2 0 0 0 12.5 8.4Z"/>
+        </svg>
+        <svg id="theme-icon-sun" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+          <circle cx="7" cy="7" r="2.5"/>
+          <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.6 2.6l1 1M10.4 10.4l1 1M2.6 11.4l1-1M10.4 3.6l1-1"/>
+        </svg>
+      </button>
+      <button id="expand-btn" class="btn-pill btn-expand" title="Open in full screen">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 5V2h3M9 2h3v3M2 9v3h3M12 9v3h-3"/>
+        </svg>
+        <span class="btn-expand-label">Expand</span>
+      </button>
+    </div>
     <span class="tag"><span class="live-dot" id="live-dot"></span><span id="live-status">Live data</span></span>
     <h1>Unit Purchase<br><span>Calculator</span></h1>
     <p class="subtitle">Sized positions · live prices · free margin</p>

@@ -26,7 +26,12 @@ const REFRESH_MS = 60_000;
 const IS_FULLSCREEN = new URLSearchParams(location.search).has("fullscreen");
 if (IS_FULLSCREEN) document.body.classList.add("fullscreen");
 
+const THEME_KEY = "upc-theme-v1";
+
 const els = {
+  themeBtn:       document.getElementById("theme-btn"),
+  themeIconMoon:  document.getElementById("theme-icon-moon"),
+  themeIconSun:   document.getElementById("theme-icon-sun"),
   expandBtn:      document.getElementById("expand-btn"),
   symbolSelect:   document.getElementById("symbol-select"),
   customRow:      document.getElementById("custom-row"),
@@ -328,7 +333,39 @@ function populateSymbols() {
   ).join("");
 }
 
+function applyTheme(theme) {
+  const isDark = theme === "dark";
+  document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+  if (els.themeIconMoon && els.themeIconSun) {
+    els.themeIconMoon.style.display = isDark ? "none" : "";
+    els.themeIconSun.style.display  = isDark ? "" : "none";
+  }
+  if (els.themeBtn) {
+    els.themeBtn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+    els.themeBtn.setAttribute("aria-label", els.themeBtn.title);
+  }
+}
+
+async function loadTheme() {
+  const out = await chrome.storage.local.get(THEME_KEY);
+  let theme = out[THEME_KEY];
+  if (theme !== "dark" && theme !== "light") {
+    theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark" : "light";
+  }
+  applyTheme(theme);
+  return theme;
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  chrome.storage.local.set({ [THEME_KEY]: next });
+}
+
 function wire() {
+  if (els.themeBtn) els.themeBtn.addEventListener("click", toggleTheme);
   if (els.expandBtn) {
     if (IS_FULLSCREEN) {
       els.expandBtn.style.display = "none";
@@ -380,6 +417,7 @@ function wire() {
 (async function init() {
   populateSymbols();
   readVersion();
+  await loadTheme();
   await loadState();
   wire();
   calc();
