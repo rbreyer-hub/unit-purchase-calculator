@@ -23,7 +23,11 @@ const MARKETS = [
 const STORAGE_KEY = "upc-state-v1";
 const REFRESH_MS = 60_000;
 
+const IS_FULLSCREEN = new URLSearchParams(location.search).has("fullscreen");
+if (IS_FULLSCREEN) document.body.classList.add("fullscreen");
+
 const els = {
+  expandBtn:      document.getElementById("expand-btn"),
   symbolSelect:   document.getElementById("symbol-select"),
   customRow:      document.getElementById("custom-row"),
   customSymbol:   document.getElementById("custom-symbol"),
@@ -140,9 +144,9 @@ function calc() {
   // Free-margin gauge
   const gaugeWidth = Math.max(0, Math.min(100, freePct));
   els.gaugeFill.style.width = gaugeWidth.toFixed(1) + "%";
-  let gaugeColor = "var(--ink)";
-  if (freeMargin < 0)        gaugeColor = "var(--accent)";
-  else if (freePct < 25)     gaugeColor = "var(--warn)";
+  let gaugeColor = "var(--grad-gauge-safe)";
+  if (freeMargin < 0)        gaugeColor = "var(--grad-gauge-danger)";
+  else if (freePct < 25)     gaugeColor = "var(--grad-gauge-warn)";
   els.gaugeFill.style.background = gaugeColor;
   els.gaugePct.textContent = Math.round(freePct) + "%";
 
@@ -325,6 +329,17 @@ function populateSymbols() {
 }
 
 function wire() {
+  if (els.expandBtn) {
+    if (IS_FULLSCREEN) {
+      els.expandBtn.style.display = "none";
+    } else {
+      els.expandBtn.addEventListener("click", () => {
+        const url = chrome.runtime.getURL("popup.html?fullscreen=1");
+        chrome.tabs.create({ url });
+        window.close();
+      });
+    }
+  }
   els.symbolSelect.addEventListener("change", onSymbolChange);
   els.customApply.addEventListener("click", () => {
     const { symbol, label } = selectedSymbolAndLabel();

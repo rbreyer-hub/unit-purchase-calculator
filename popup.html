@@ -11,10 +11,19 @@
 <div class="container">
 
   <header>
+    <button id="expand-btn" class="btn-expand" title="Open in full screen">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M2 5V2h3M9 2h3v3M2 9v3h3M12 9v3h-3"/>
+      </svg>
+      <span class="btn-expand-label">Expand</span>
+    </button>
     <span class="tag"><span class="live-dot" id="live-dot"></span><span id="live-status">Live data</span></span>
     <h1>Unit Purchase<br><span>Calculator</span></h1>
     <p class="subtitle">Sized positions · live prices · free margin</p>
   </header>
+
+  <div class="layout">
+  <div class="col col-left">
 
   <div class="section-label">Market</div>
 
@@ -108,7 +117,8 @@
     </div>
   </div>
 
-  <div class="divider"></div>
+  </div>
+  <div class="col col-right">
   <div class="section-label">Results</div>
 
   <div class="results-grid">
@@ -162,9 +172,10 @@
   <div class="section-label">Pre-trade checklist</div>
   <div class="checklist" id="checklist"></div>
 
-  <div class="divider"></div>
   <div class="section-label">Calculation breakdown</div>
   <div class="formula-box" id="formula-box"></div>
+  </div>
+  </div>
 
   <footer>
     <span id="footer-version">v0.1.0</span>
