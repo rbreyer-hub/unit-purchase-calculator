@@ -92,10 +92,10 @@
       <div>
         <label class="field-label" for="in-multiplier">Contract multiplier</label>
         <div class="input-wrap">
-          <input type="number" id="in-multiplier" step="any" min="0" value="1" />
+          <input type="number" id="in-multiplier" step="any" min="0" value="20" />
           <span class="suffix">×</span>
         </div>
-        <span class="field-aux">$ per unit per point</span>
+        <span class="field-aux" id="multiplier-aux">$ per unit per point · auto-set per symbol</span>
       </div>
     </div>
 
@@ -105,13 +105,15 @@
         <div class="input-wrap">
           <input type="number" id="in-entry" step="any" min="0" value="25580" />
         </div>
+        <span class="field-aux" id="entry-aux">auto-fills from live quote</span>
       </div>
       <div>
-        <label class="field-label" for="in-stop">Stop loss price</label>
+        <label class="field-label" for="in-stop-distance">Stop loss distance</label>
         <div class="input-wrap">
-          <input type="number" id="in-stop" step="any" min="0" value="25480" />
+          <input type="number" id="in-stop-distance" step="any" min="0" value="50" />
+          <span class="suffix">pts</span>
         </div>
-        <span class="field-aux" id="stop-distance">distance: 100.00</span>
+        <span class="field-aux" id="stop-price-hint">stop ≈ 25530.00</span>
       </div>
     </div>
 

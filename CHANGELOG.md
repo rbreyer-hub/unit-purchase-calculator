@@ -3,6 +3,45 @@
 All notable changes to **Unit Purchase Calculator** are documented here.
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-05-06
+
+### Changed
+- **Stop loss is now a distance, not a price.** The "Stop loss price"
+  input is replaced with "Stop loss distance" (in points), with a
+  small hint underneath showing the implied stop price (`stop ≈
+  entry − distance`). This is what most position-sizing workflows
+  actually want — you decide how much room your trade gets, then
+  size to that — and it removes the failure mode where the user
+  typed `100` (intending a distance) into a field labeled "price"
+  and got a unit count of 0.04.
+- **Contract multiplier auto-sets per symbol.** Each market in the
+  symbol list now carries its standard contract's point value:
+  `^NDX → $20/pt` (NQ futures), `^GSPC → $50/pt` (ES), `^DJI → $5/pt`
+  (YM), `^RUT → $50/pt` (RTY), `^GDAXI → €25/pt`, `^FTSE → £10/pt`,
+  major FX pairs `100,000` (standard lot), `JPY=X → 1,000`, BTC/ETH
+  `1`, gold `100`, silver `5,000`, crude `1,000`, single stocks `1`.
+  When you change the symbol, the multiplier input updates and a
+  small note shows which contract it matches (e.g. "NQ futures ·
+  $20/pt"). Users trading micros (MNQ, MES, etc.) can edit
+  afterwards.
+- **Entry price auto-fills from the live quote.** Selecting a
+  symbol, hitting refresh, the periodic 60-second refresh, and
+  applying a custom symbol all now write the latest market price
+  into the Entry field and recompute. The "use as entry →" button
+  remains for manual re-pulls.
+- **Units result always renders.** The headline "Units" tile shows
+  the computed value when valid (positive risk, distance, and
+  multiplier), and a clear `—` plus a checklist row explaining the
+  missing input otherwise — no more silent zero or stale value.
+
+### Fixed
+- Stop input no longer collapses the unit calc when a small number
+  is typed in; the field is now labeled and shaped to accept a
+  distance directly.
+- A new pre-trade checklist row asserts a positive contract
+  multiplier so a `multiplier = 0` typo can't quietly produce
+  `Infinity` units.
+
 ## [0.4.1] — 2026-05-05
 
 ### Fixed
@@ -134,6 +173,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Cream / forest-green / vermillion palette pulled from the
   reference image, with Syne (display) and DM Mono (body) fonts.
 
+[0.5.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.5.0
 [0.4.1]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.4.0
 [0.3.0]: https://github.com/rbreyer-hub/unit-purchase-calculator/releases/tag/v0.3.0

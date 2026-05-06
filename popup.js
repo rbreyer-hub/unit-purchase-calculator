@@ -1,23 +1,27 @@
 // Unit Purchase Calculator — popup logic
 
+// `multiplier` is dollars-per-unit-per-point for the standard contract
+// of the underlying index/instrument (e.g. NQ for ^NDX = $20/pt). Users
+// trading micros (MNQ, MES, etc.) can override after the auto-set.
+// `note` shows the contract this multiplier corresponds to.
 const MARKETS = [
-  { value: "^NDX",     label: "NAS100 (Nasdaq 100)" },
-  { value: "^GSPC",    label: "S&P 500" },
-  { value: "^DJI",     label: "Dow Jones" },
-  { value: "^RUT",     label: "Russell 2000" },
-  { value: "^GDAXI",   label: "DAX" },
-  { value: "^FTSE",    label: "FTSE 100" },
-  { value: "EURUSD=X", label: "EUR/USD" },
-  { value: "GBPUSD=X", label: "GBP/USD" },
-  { value: "JPY=X",    label: "USD/JPY" },
-  { value: "BTC-USD",  label: "Bitcoin (BTC-USD)" },
-  { value: "ETH-USD",  label: "Ethereum (ETH-USD)" },
-  { value: "GC=F",     label: "Gold futures" },
-  { value: "SI=F",     label: "Silver futures" },
-  { value: "CL=F",     label: "Crude oil futures" },
-  { value: "AAPL",     label: "Apple (AAPL)" },
-  { value: "TSLA",     label: "Tesla (TSLA)" },
-  { value: "__custom", label: "Custom symbol…" }
+  { value: "^NDX",     label: "NAS100 (Nasdaq 100)", multiplier: 20,     note: "NQ futures · $20/pt" },
+  { value: "^GSPC",    label: "S&P 500",             multiplier: 50,     note: "ES futures · $50/pt" },
+  { value: "^DJI",     label: "Dow Jones",           multiplier: 5,      note: "YM futures · $5/pt" },
+  { value: "^RUT",     label: "Russell 2000",        multiplier: 50,     note: "RTY futures · $50/pt" },
+  { value: "^GDAXI",   label: "DAX",                 multiplier: 25,     note: "FDAX · €25/pt" },
+  { value: "^FTSE",    label: "FTSE 100",            multiplier: 10,     note: "Z futures · £10/pt" },
+  { value: "EURUSD=X", label: "EUR/USD",             multiplier: 100000, note: "Standard FX lot" },
+  { value: "GBPUSD=X", label: "GBP/USD",             multiplier: 100000, note: "Standard FX lot" },
+  { value: "JPY=X",    label: "USD/JPY",             multiplier: 1000,   note: "Standard FX lot, JPY pairs" },
+  { value: "BTC-USD",  label: "Bitcoin (BTC-USD)",   multiplier: 1,      note: "1 coin = $1/pt" },
+  { value: "ETH-USD",  label: "Ethereum (ETH-USD)",  multiplier: 1,      note: "1 coin = $1/pt" },
+  { value: "GC=F",     label: "Gold futures",        multiplier: 100,    note: "GC · $100/pt" },
+  { value: "SI=F",     label: "Silver futures",      multiplier: 5000,   note: "SI · $5000/pt" },
+  { value: "CL=F",     label: "Crude oil futures",   multiplier: 1000,   note: "CL · $1000/pt" },
+  { value: "AAPL",     label: "Apple (AAPL)",        multiplier: 1,      note: "1 share = $1/pt" },
+  { value: "TSLA",     label: "Tesla (TSLA)",        multiplier: 1,      note: "1 share = $1/pt" },
+  { value: "__custom", label: "Custom symbol…",      multiplier: 1,      note: "Set multiplier manually" }
 ];
 
 const STORAGE_KEY = "upc-state-v1";
@@ -50,12 +54,14 @@ const els = {
   inRisk:         document.getElementById("in-risk"),
   inMultiplier:   document.getElementById("in-multiplier"),
   inEntry:        document.getElementById("in-entry"),
-  inStop:         document.getElementById("in-stop"),
+  inStopDistance: document.getElementById("in-stop-distance"),
   inBrokerMargin: document.getElementById("in-broker-margin"),
   inUsedMargin:   document.getElementById("in-used-margin"),
 
   riskPct:        document.getElementById("risk-pct"),
-  stopDistance:   document.getElementById("stop-distance"),
+  stopPriceHint:  document.getElementById("stop-price-hint"),
+  multiplierAux:  document.getElementById("multiplier-aux"),
+  entryAux:       document.getElementById("entry-aux"),
   brokerLeverage: document.getElementById("broker-leverage"),
 
   dUnits:         document.getElementById("d-units"),
@@ -114,11 +120,10 @@ function calc() {
   const riskAmt      = num(els.inRisk.value);
   const multiplier   = num(els.inMultiplier.value, 1);
   const entry        = num(els.inEntry.value);
-  const stop         = num(els.inStop.value);
+  const stopDist     = num(els.inStopDistance.value);
   const brokerMargin = num(els.inBrokerMargin.value);
   const usedMargin   = num(els.inUsedMargin.value);
 
-  const stopDist     = Math.abs(entry - stop);
   const riskPct      = balance > 0 ? (riskAmt / balance) * 100 : 0;
   const valuePerUnit = stopDist * multiplier;
   const units        = valuePerUnit > 0 ? riskAmt / valuePerUnit : 0;
@@ -127,16 +132,22 @@ function calc() {
   const freeMargin   = balance - usedMargin - posMargin;
   const freePct      = balance > 0 ? (freeMargin / balance) * 100 : 0;
   const leverage     = brokerMargin > 0 ? 100 / brokerMargin : Infinity;
+  const stopPrice    = entry > 0 && stopDist > 0 ? entry - stopDist : null;
 
   // Aux labels
-  els.riskPct.textContent       = `= ${fmtPct(riskPct)} of balance`;
-  els.stopDistance.textContent  = `distance: ${fmtNum(stopDist, 2)}`;
+  els.riskPct.textContent        = `= ${fmtPct(riskPct)} of balance`;
+  els.stopPriceHint.textContent  = stopPrice != null
+    ? `stop ≈ ${fmtNum(stopPrice, decimalsFor(entry))}`
+    : "enter entry & distance";
   els.brokerLeverage.textContent = isFinite(leverage)
     ? `≈ ${leverage.toFixed(0)}:1 leverage`
     : "no leverage";
 
-  // Result tiles
-  els.dUnits.textContent         = fmtNum(units, 2);
+  // Result tiles — units is the headline output. Show it whenever
+  // we have positive risk + distance + multiplier; otherwise show "—"
+  // with a clear reason in the checklist below.
+  const unitsValid = units > 0 && isFinite(units);
+  els.dUnits.textContent         = unitsValid ? fmtNum(units, 2) : "—";
   els.dLoss.textContent          = fmtMoney(riskAmt);
   els.dLossPct.textContent       = `${fmtPct(riskPct)} of account`;
   els.dNotional.textContent      = fmtMoney(notional);
@@ -159,7 +170,8 @@ function calc() {
   const checks = [
     { pass: balance > 0,        text: balance > 0 ? "Account balance entered" : "Enter an account balance" },
     { pass: riskAmt > 0,        text: riskAmt > 0 ? `Risk amount set (${fmtMoneyFull(riskAmt)})` : "Enter a risk amount" },
-    { pass: stopDist > 0,       text: stopDist > 0 ? `Stop loss distance ${fmtNum(stopDist, 2)} from entry` : "Stop must differ from entry" },
+    { pass: stopDist > 0,       text: stopDist > 0 ? `Stop loss distance ${fmtNum(stopDist, 2)} pts` : "Enter a stop loss distance > 0" },
+    { pass: multiplier > 0,     text: multiplier > 0 ? `Multiplier $${fmtNum(multiplier, 2)}/pt` : "Enter a contract multiplier > 0" },
     { pass: riskPct <= 2,       text: riskPct <= 2 ? `Risk ${fmtPct(riskPct)} — within 1–2% sane range` : `Risk ${fmtPct(riskPct)} — over 2% is aggressive` },
     { pass: freeMargin >= 0,    text: freeMargin >= 0 ? `Free margin ${fmtMoney(freeMargin)} after this trade` : `Free margin ${fmtMoney(freeMargin)} — position exceeds available margin` },
     { pass: units > 0 && isFinite(units), text: units > 0 && isFinite(units) ? `Units ${fmtNum(units, 2)} sized correctly` : "Cannot size: check stop distance and multiplier" }
@@ -188,9 +200,9 @@ function calc() {
 
   // Formula breakdown
   els.formulaBox.innerHTML = [
-    `<strong>Stop distance</strong> = |${fmtNum(entry, 2)} − ${fmtNum(stop, 2)}| = ${fmtNum(stopDist, 2)}`,
-    `<strong>Value per unit</strong> = ${fmtNum(stopDist, 2)} × ${fmtNum(multiplier, 2)} = ${fmtMoneyFull(valuePerUnit)}`,
-    `<strong>Units</strong> = ${fmtMoneyFull(riskAmt)} ÷ ${fmtMoneyFull(valuePerUnit)} = <span class="highlight">${fmtNum(units, 2)} units</span>`,
+    `<strong>Stop distance</strong> = ${fmtNum(stopDist, 2)} pts (entered)`,
+    `<strong>Value per unit</strong> = ${fmtNum(stopDist, 2)} pts × $${fmtNum(multiplier, 2)}/pt = ${fmtMoneyFull(valuePerUnit)}`,
+    `<strong>Units</strong> = ${fmtMoneyFull(riskAmt)} ÷ ${fmtMoneyFull(valuePerUnit)} = <span class="highlight">${unitsValid ? fmtNum(units, 2) : "—"} units</span>`,
     `<strong>Notional</strong> = ${fmtNum(units, 2)} × ${fmtNum(entry, 2)} × ${fmtNum(multiplier, 2)} = ${fmtMoneyFull(notional)}`,
     `<strong>Position margin</strong> = ${fmtMoneyFull(notional)} × ${fmtPct(brokerMargin, 1)} = ${fmtMoneyFull(posMargin)}`,
     `<strong>Free margin</strong> = ${fmtMoneyFull(balance)} − ${fmtMoneyFull(usedMargin)} − ${fmtMoneyFull(posMargin)} = <span class="highlight">${fmtMoneyFull(freeMargin)}</span>`
@@ -246,7 +258,7 @@ function decimalsFor(price) {
   return 6;
 }
 
-async function fetchQuote(symbol, label) {
+async function fetchQuote(symbol, label, { autoApplyEntry = false } = {}) {
   if (!symbol) return;
   els.liveStatus.textContent = "Fetching…";
   setQuoteLabel(symbol, label);
@@ -255,6 +267,10 @@ async function fetchQuote(symbol, label) {
     if (resp && resp.ok) {
       currentQuote = resp.data;
       renderQuote();
+      if (autoApplyEntry && isFinite(currentQuote.price)) {
+        els.inEntry.value = currentQuote.price.toString();
+        calc();
+      }
     } else {
       currentQuote = null;
       renderQuote();
@@ -267,23 +283,42 @@ async function fetchQuote(symbol, label) {
   }
 }
 
-function selectedSymbolAndLabel() {
+function selectedMarket() {
   const v = els.symbolSelect.value;
-  if (v === "__custom") {
+  return MARKETS.find(m => m.value === v) || null;
+}
+
+function selectedSymbolAndLabel() {
+  const m = selectedMarket();
+  if (m && m.value === "__custom") {
     const s = els.customSymbol.value.trim().toUpperCase();
-    return { symbol: s, label: s ? s : "" };
+    return { symbol: s, label: s ? s : "", market: m };
   }
-  const m = MARKETS.find(m => m.value === v);
-  return { symbol: v, label: m ? m.label : v };
+  if (m) return { symbol: m.value, label: m.label, market: m };
+  return { symbol: els.symbolSelect.value, label: els.symbolSelect.value, market: null };
+}
+
+// Apply the standard contract multiplier for the selected market.
+// Always overwrites the input value so users see a sensible default
+// for the chosen index; they can edit afterwards (e.g. for micros).
+function applyMultiplierForMarket(market) {
+  if (!market || !isFinite(market.multiplier)) return;
+  els.inMultiplier.value = String(market.multiplier);
+  if (els.multiplierAux && market.note) {
+    els.multiplierAux.textContent = `${market.note} · auto-set, edit for micros`;
+  }
 }
 
 function onSymbolChange() {
-  const isCustom = els.symbolSelect.value === "__custom";
+  const market = selectedMarket();
+  const isCustom = market && market.value === "__custom";
   els.customRow.style.display = isCustom ? "flex" : "none";
+  if (market) applyMultiplierForMarket(market);
   if (!isCustom) {
     const { symbol, label } = selectedSymbolAndLabel();
-    fetchQuote(symbol, label);
+    fetchQuote(symbol, label, { autoApplyEntry: true });
   }
+  calc();
 }
 
 // ───────── State persistence ─────────
@@ -295,7 +330,7 @@ function saveState() {
     risk: els.inRisk.value,
     multiplier: els.inMultiplier.value,
     entry: els.inEntry.value,
-    stop: els.inStop.value,
+    stopDistance: els.inStopDistance.value,
     brokerMargin: els.inBrokerMargin.value,
     usedMargin: els.inUsedMargin.value
   };
@@ -312,10 +347,14 @@ async function loadState() {
   if (s.risk)          els.inRisk.value = s.risk;
   if (s.multiplier)    els.inMultiplier.value = s.multiplier;
   if (s.entry)         els.inEntry.value = s.entry;
-  if (s.stop)          els.inStop.value = s.stop;
+  if (s.stopDistance)  els.inStopDistance.value = s.stopDistance;
   if (s.brokerMargin)  els.inBrokerMargin.value = s.brokerMargin;
   if (s.usedMargin)    els.inUsedMargin.value = s.usedMargin;
   els.customRow.style.display = els.symbolSelect.value === "__custom" ? "flex" : "none";
+  const market = selectedMarket();
+  if (market && els.multiplierAux && market.note) {
+    els.multiplierAux.textContent = `${market.note} · auto-set, edit for micros`;
+  }
 }
 
 // ───────── Version display ─────────
@@ -380,7 +419,7 @@ function wire() {
   els.symbolSelect.addEventListener("change", onSymbolChange);
   els.customApply.addEventListener("click", () => {
     const { symbol, label } = selectedSymbolAndLabel();
-    if (symbol) fetchQuote(symbol, label);
+    if (symbol) fetchQuote(symbol, label, { autoApplyEntry: true });
     saveState();
   });
   els.customSymbol.addEventListener("keydown", (e) => {
@@ -388,7 +427,7 @@ function wire() {
   });
   els.refreshBtn.addEventListener("click", () => {
     const { symbol, label } = selectedSymbolAndLabel();
-    if (symbol) fetchQuote(symbol, label);
+    if (symbol) fetchQuote(symbol, label, { autoApplyEntry: true });
   });
   els.useAsEntry.addEventListener("click", () => {
     if (currentQuote && isFinite(currentQuote.price)) {
@@ -399,7 +438,7 @@ function wire() {
 
   const inputs = [
     els.inBalance, els.inRisk, els.inMultiplier, els.inEntry,
-    els.inStop, els.inBrokerMargin, els.inUsedMargin
+    els.inStopDistance, els.inBrokerMargin, els.inUsedMargin
   ];
   inputs.forEach(i => i.addEventListener("input", calc));
 
@@ -409,7 +448,7 @@ function wire() {
   }, 1000);
   setInterval(() => {
     const { symbol, label } = selectedSymbolAndLabel();
-    if (symbol && symbol !== "__custom") fetchQuote(symbol, label);
+    if (symbol && symbol !== "__custom") fetchQuote(symbol, label, { autoApplyEntry: true });
   }, REFRESH_MS);
 }
 
@@ -422,6 +461,5 @@ function wire() {
   wire();
   calc();
   const { symbol, label } = selectedSymbolAndLabel();
-  if (symbol && symbol !== "__custom") fetchQuote(symbol, label);
-  else if (symbol)                    fetchQuote(symbol, label);
+  if (symbol) fetchQuote(symbol, label, { autoApplyEntry: true });
 })();
